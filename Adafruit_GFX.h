@@ -1,21 +1,15 @@
 #ifndef _ADAFRUIT_GFX_H
 #define _ADAFRUIT_GFX_H
 
-#if ARDUINO >= 100
-#include "Arduino.h"
-#include "Print.h"
-#else
-#include "WProgram.h"
-#endif
+#include <stdint.h>
+#include <string.h>
+#include <string>
 #include "gfxfont.h"
-
-#include <Adafruit_I2CDevice.h>
-#include <Adafruit_SPIDevice.h>
 
 /// A generic graphics superclass that can handle all sorts of drawing. At a
 /// minimum you can subclass and provide drawPixel(). At a maximum you can do a
 /// ton of overriding to optimize. Used for any/all Adafruit displays!
-class Adafruit_GFX : public Print {
+class Adafruit_GFX {
 
 public:
   Adafruit_GFX(int16_t w, int16_t h); // Constructor
@@ -66,6 +60,8 @@ public:
   virtual void drawRect(int16_t x, int16_t y, int16_t w, int16_t h,
                         uint16_t color);
 
+  virtual void setBuffer(uint8_t* buf) {}
+
   // These exist only with Adafruit_GFX (no subclass overrides)
   void drawCircle(int16_t x0, int16_t y0, int16_t r, uint16_t color);
   void drawCircleHelper(int16_t x0, int16_t y0, int16_t r, uint8_t cornername,
@@ -113,9 +109,7 @@ public:
                 uint16_t bg, uint8_t size_x, uint8_t size_y);
   void getTextBounds(const char *string, int16_t x, int16_t y, int16_t *x1,
                      int16_t *y1, uint16_t *w, uint16_t *h);
-  void getTextBounds(const __FlashStringHelper *s, int16_t x, int16_t y,
-                     int16_t *x1, int16_t *y1, uint16_t *w, uint16_t *h);
-  void getTextBounds(const String &str, int16_t x, int16_t y, int16_t *x1,
+  void getTextBounds(const std::string &str, int16_t x, int16_t y, int16_t *x1,
                      int16_t *y1, uint16_t *w, uint16_t *h);
   void setTextSize(uint8_t s);
   void setTextSize(uint8_t sx, uint8_t sy);
@@ -180,12 +174,7 @@ public:
   /**********************************************************************/
   void cp437(bool x = true) { _cp437 = x; }
 
-  using Print::write;
-#if ARDUINO >= 100
-  virtual size_t write(uint8_t);
-#else
-  virtual void write(uint8_t);
-#endif
+  //void write(uint8_t);
 
   /************************************************************************/
   /*!
@@ -341,6 +330,7 @@ private:
 class GFXcanvas8 : public Adafruit_GFX {
 public:
   GFXcanvas8(uint16_t w, uint16_t h);
+  GFXcanvas8(uint16_t w, uint16_t h, uint8_t* buf);
   ~GFXcanvas8(void);
   void drawPixel(int16_t x, int16_t y, uint16_t color);
   void fillScreen(uint16_t color);
@@ -354,11 +344,47 @@ public:
   */
   /**********************************************************************/
   uint8_t *getBuffer(void) const { return buffer; }
+  void setBuffer(uint8_t* buf) {
+    buffer = buf;
+    ownedBuffer = false;
+  }
 
 protected:
   uint8_t getRawPixel(int16_t x, int16_t y) const;
   void drawFastRawVLine(int16_t x, int16_t y, int16_t h, uint16_t color);
   void drawFastRawHLine(int16_t x, int16_t y, int16_t w, uint16_t color);
+  bool ownedBuffer = true;
+  uint8_t *buffer; ///< Raster data: no longer private, allow subclass access
+};
+
+/// A GFX 8-bit canvas context for graphics
+class GFXcanvas4 : public Adafruit_GFX {
+public:
+  GFXcanvas4(uint16_t w, uint16_t h);
+  GFXcanvas4(uint16_t w, uint16_t h, uint8_t* buf);
+  ~GFXcanvas4(void);
+  void drawPixel(int16_t x, int16_t y, uint16_t color);
+  void fillScreen(uint16_t color);
+  void drawFastVLine(int16_t x, int16_t y, int16_t h, uint16_t color);
+  void drawFastHLine(int16_t x, int16_t y, int16_t w, uint16_t color);
+  uint8_t getPixel(int16_t x, int16_t y) const;
+  /**********************************************************************/
+  /*!
+   @brief    Get a pointer to the internal buffer memory
+   @returns  A pointer to the allocated buffer
+  */
+  /**********************************************************************/
+  uint8_t *getBuffer(void) const { return buffer; }
+  void setBuffer(uint8_t* buf) {
+    buffer = buf;
+    ownedBuffer = false;
+  }
+
+protected:
+  uint8_t getRawPixel(int16_t x, int16_t y) const;
+  void drawFastRawVLine(int16_t x, int16_t y, int16_t h, uint16_t color);
+  void drawFastRawHLine(int16_t x, int16_t y, int16_t w, uint16_t color);
+  bool ownedBuffer = true;
   uint8_t *buffer; ///< Raster data: no longer private, allow subclass access
 };
 
