@@ -13,6 +13,7 @@ class Adafruit_GFX {
 
 public:
   Adafruit_GFX(int16_t w, int16_t h); // Constructor
+  virtual ~Adafruit_GFX() {}
 
   /**********************************************************************/
   /*!
@@ -99,6 +100,11 @@ public:
                      int16_t h);
   void drawRGBBitmap(int16_t x, int16_t y, uint16_t *bitmap, int16_t w,
                      int16_t h);
+  virtual void drawRGB8Bitmap(int16_t x, int16_t y, uint8_t *bitmap, int16_t w,
+                     int16_t h);
+
+  virtual void drawRGB4Bitmap(int16_t x, int16_t y, uint8_t *bitmap, int16_t w,
+                     int16_t h) {}
   void drawRGBBitmap(int16_t x, int16_t y, const uint16_t bitmap[],
                      const uint8_t mask[], int16_t w, int16_t h);
   void drawRGBBitmap(int16_t x, int16_t y, uint16_t *bitmap, uint8_t *mask,
@@ -299,6 +305,7 @@ private:
 class GFXcanvas1 : public Adafruit_GFX {
 public:
   GFXcanvas1(uint16_t w, uint16_t h);
+  GFXcanvas1(uint16_t w, uint16_t h, uint8_t* buf);
   ~GFXcanvas1(void);
   void drawPixel(int16_t x, int16_t y, uint16_t color);
   void fillScreen(uint16_t color);
@@ -312,11 +319,16 @@ public:
   */
   /**********************************************************************/
   uint8_t *getBuffer(void) const { return buffer; }
+  void setBuffer(uint8_t* buf) {
+    buffer = buf;
+    ownedBuffer = false;
+  }
 
 protected:
   bool getRawPixel(int16_t x, int16_t y) const;
   void drawFastRawVLine(int16_t x, int16_t y, int16_t h, uint16_t color);
   void drawFastRawHLine(int16_t x, int16_t y, int16_t w, uint16_t color);
+  bool ownedBuffer = true;
   uint8_t *buffer; ///< Raster data: no longer private, allow subclass access
 
 private:
@@ -337,6 +349,10 @@ public:
   void drawFastVLine(int16_t x, int16_t y, int16_t h, uint16_t color);
   void drawFastHLine(int16_t x, int16_t y, int16_t w, uint16_t color);
   uint8_t getPixel(int16_t x, int16_t y) const;
+
+  void drawRGB8Bitmap(int16_t x, int16_t y, uint8_t *bitmap, int16_t w,
+                     int16_t h) override;
+
   /**********************************************************************/
   /*!
    @brief    Get a pointer to the internal buffer memory
@@ -368,6 +384,8 @@ public:
   void drawFastVLine(int16_t x, int16_t y, int16_t h, uint16_t color);
   void drawFastHLine(int16_t x, int16_t y, int16_t w, uint16_t color);
   uint8_t getPixel(int16_t x, int16_t y) const;
+  void drawRGB4Bitmap(int16_t x, int16_t y, uint8_t *bitmap, int16_t w,
+                     int16_t h) override;
   /**********************************************************************/
   /*!
    @brief    Get a pointer to the internal buffer memory

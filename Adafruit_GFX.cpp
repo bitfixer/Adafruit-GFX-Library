@@ -1032,6 +1032,18 @@ void Adafruit_GFX::drawRGBBitmap(int16_t x, int16_t y, uint16_t *bitmap,
   endWrite();
 }
 
+void Adafruit_GFX::drawRGB8Bitmap(int16_t x, int16_t y, uint8_t *bitmap,
+                                 int16_t w, int16_t h) {
+  startWrite();
+  for (int16_t j = 0; j < h; j++, y++) {
+    for (int16_t i = 0; i < w; i++) {
+      writePixel(x + i, y, bitmap[j * w + i]);
+    }
+  }
+  endWrite();
+}
+
+
 /**************************************************************************/
 /*!
    @brief   Draw a PROGMEM-resident 16-bit image (RGB 5/6/5) with a 1-bit mask
@@ -1733,13 +1745,18 @@ GFXcanvas1::GFXcanvas1(uint16_t w, uint16_t h) : Adafruit_GFX(w, h) {
   }
 }
 
+GFXcanvas1::GFXcanvas1(uint16_t w, uint16_t h, uint8_t* buf) : Adafruit_GFX(w, h) {
+  ownedBuffer = false;
+  buffer = buf;
+}
+
 /**************************************************************************/
 /*!
    @brief    Delete the canvas, free memory
 */
 /**************************************************************************/
 GFXcanvas1::~GFXcanvas1(void) {
-  if (buffer)
+  if (ownedBuffer && buffer)
     free(buffer);
 }
 
@@ -1817,6 +1834,15 @@ bool GFXcanvas1::getPixel(int16_t x, int16_t y) const {
     break;
   }
   return getRawPixel(x, y);
+}
+
+void GFXcanvas8::drawRGB8Bitmap(int16_t x, int16_t y, uint8_t *bitmap, int16_t w,
+                     int16_t h) {
+  if (x == 0 && y == 0 && w == WIDTH && h == HEIGHT) {
+    memcpy(buffer, bitmap, w*h);
+  } else {
+    this->Adafruit_GFX::drawRGB8Bitmap(x, y, bitmap, w, h);
+  }
 }
 
 /**********************************************************************/
@@ -2671,6 +2697,13 @@ void GFXcanvas4::drawFastRawHLine(int16_t x, int16_t y, int16_t w,
   memset(buffer + (y * WIDTH + x)/2, mask, w/2);
 }
 
+
+void GFXcanvas4::drawRGB4Bitmap(int16_t x, int16_t y, uint8_t *bitmap, int16_t w,
+                     int16_t h) {
+  if (x == 0 && y == 0 && w == WIDTH && h == HEIGHT) {
+    memcpy(buffer, bitmap, w*h/2);
+  }
+}
 
 /**************************************************************************/
 /*!
