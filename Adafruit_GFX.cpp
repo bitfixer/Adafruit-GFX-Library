@@ -1252,8 +1252,7 @@ void Adafruit_GFX::drawChar(int16_t x, int16_t y, unsigned char c,
     @param  c  The 8-bit ascii character to write
 */
 /**************************************************************************/
-/*
-size_t Adafruit_GFX::write(uint8_t c) {
+void Adafruit_GFX::write(uint8_t c) {
   if (!gfxFont) { // 'Classic' built-in font
 
     if (c == '\n') {              // Newline?
@@ -1271,6 +1270,7 @@ size_t Adafruit_GFX::write(uint8_t c) {
 
   } else { // Custom font
 
+    /*
     if (c == '\n') {
       cursor_x = 0;
       cursor_y +=
@@ -1295,10 +1295,11 @@ size_t Adafruit_GFX::write(uint8_t c) {
             (uint8_t)pgm_read_byte(&glyph->xAdvance) * (int16_t)textsize_x;
       }
     }
+    */
   }
-  return 1;
+  //return 1;
+  
 }
-*/
 
 /**************************************************************************/
 /*!
