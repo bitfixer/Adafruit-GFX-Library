@@ -1246,6 +1246,14 @@ void Adafruit_GFX::drawChar(int16_t x, int16_t y, unsigned char c,
 
   } // End classic vs custom font
 }
+
+void Adafruit_GFX::print(const char* string) {
+  int len = strlen(string);
+  for (int i = 0; i < len; i++) {
+    write(string[i]);
+  }
+}
+
 /**************************************************************************/
 /*!
     @brief  Print one byte/character of data, used to support print()

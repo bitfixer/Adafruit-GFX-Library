@@ -181,6 +181,7 @@ public:
   void cp437(bool x = true) { _cp437 = x; }
 
   void write(uint8_t);
+  void print(const char* string);
 
   /************************************************************************/
   /*!
